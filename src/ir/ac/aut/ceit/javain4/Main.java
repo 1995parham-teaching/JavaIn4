@@ -21,26 +21,40 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to Distributed Calculator");
         boolean isRun = true;
+        int result;
         while (isRun) {
-            System.out.println("1) Add");
-            System.out.println("2) Sub");
-            System.out.println("3) Quit");
+            result = 0;
             System.out.print("> ");
 
-            while (!scanner.hasNextInt()) {
-                scanner.next();
+            if (scanner.hasNext("quit")) {
+                isRun = false;
+                continue;
             }
 
-            int select = scanner.nextInt();
-            switch (select) {
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    isRun = false;
-                    break;
+            String input = scanner.nextLine();
+            int sign = 1;
+            int num = 0;
+            String tmp = "";
+            for(int i=0;i<input.length();i++)
+            {
+                if(input.charAt(i) == '+') {
+                    num = Integer.parseInt(tmp);
+                    tmp = "";
+                    result = result + sign * num;
+                    sign = 1;
+                }
+                else if(input.charAt(i) == '-') {
+                    num = Integer.parseInt(tmp);
+                    tmp = "";
+                    result = result + sign * num;
+                    sign = -1;
+                }
+                else
+                    tmp+=input.charAt(i);
             }
+            num = Integer.parseInt(tmp);
+            result = result + sign * num;
+            System.out.println(result);
         }
 
         System.out.println("Hope you enjoy");
