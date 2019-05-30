@@ -6,11 +6,21 @@ import java.net.Socket;
 public class RemoteCalculator implements Calculator {
     private PrintWriter writer;
     private BufferedReader reader;
+    private Socket socket;
 
     public RemoteCalculator(String ip, int port) throws IOException {
-        Socket socket = new Socket(ip, port);
+        this.socket = new Socket(ip, port);
         this.writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
+
+    public void quit() {
+        this.writer.println("quit");
+        try {
+            this.socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
