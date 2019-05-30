@@ -19,6 +19,10 @@ public class Server implements Runnable {
         this.executorService = Executors.newCachedThreadPool();
     }
 
+    /**
+     * stop stops the server and close its socket
+     * @throws IOException throws from the closing procedure of server socket
+     */
     public void stop() throws IOException {
         this.serverSocket.close();
         isRun = false;
@@ -40,8 +44,9 @@ public class Server implements Runnable {
 
     private static class Handler implements Runnable {
         private Socket client;
+        private boolean isRun = true;
 
-        public Handler(Socket client) {
+        Handler(Socket client) {
             this.client = client;
         }
 
@@ -49,16 +54,34 @@ public class Server implements Runnable {
         public void run() {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
-                String command = reader.readLine();
-                logger.info(String.format("There is a message from %s: %s", this.client.getInetAddress(), command));
-
-                // TODO: parse the command here
-
                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(this.client.getOutputStream()));
-                writer.println("Bye");
-                writer.flush();
 
-                client.close();
+                while (isRun) {
+                    String command = reader.readLine();
+                    logger.info(String.format("There is a message from %s: %s", this.client.getInetAddress(), command));
+                    if (command.equals("quit")) {
+                        this.client.close();
+                        isRun = false;
+                        continue;
+                    }
+
+                    String[] subCommands = command.split(" ");
+                    int x = Integer.parseInt(subCommands[1]);
+                    int y = Integer.parseInt(subCommands[2]);
+                    int result;
+                    switch (subCommands[0]) {
+                        case "ADD":
+                            result = x + y;
+                            break;
+                        case "SUB":
+                            result = x - y;
+                            break;
+                        default:
+                            result = 0;
+                    }
+                    writer.println(result);
+                    writer.flush();
+                }
             } catch (IOException e) {
                 logger.severe(e.getMessage());
             }
